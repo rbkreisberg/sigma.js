@@ -18,7 +18,7 @@
  * @extends sigma.classes.Cascade
  * @this {Plotter}
  */
-function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, graph, w, h) {
+function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, h) {
   sigma.classes.Cascade.call(this);
 
   /**
@@ -126,6 +126,11 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, graph, w, h) {
     borderSize: 0,
     nodeBorderColor: 'node',
     defaultNodeBorderColor: '#fff',
+    // Overlay color
+    // - 'overlay'
+    // - default
+    overlayColor: '#999',
+    overlayAlpha: 0.4,
     // --------
     // PROCESS:
     // --------
@@ -158,6 +163,11 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, graph, w, h) {
    */
   var hoverCtx = hoverCtx;
 
+  /**
+   * The canvas context dedicated to draw the overlay boxes.
+   * @type {CanvasRenderingContext2D}
+   */
+  var overlayCtx = overlayCtx
   /**
    * A reference to the graph to draw.
    * @type {Graph}
@@ -744,11 +754,30 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, graph, w, h) {
     return nodeCoordinates;
   };
 
+  function drawOverlay(bbox) {
+    var ctx = overlayCtx;
+
+    self.clearOverlay();
+    
+    ctx.lineWidth = 0;
+    ctx.fillStyle = self.p.overlayColor;
+    ctx.globalAlpha = self.p.overlayAlpha;
+    ctx.fillRect(bbox[0],bbox[1],bbox[2],bbox[3]);
+
+  };
+
+  function clearOverlay() {
+    var ctx = overlayCtx;
+    ctx.clearRect(0, 0, width, height );
+  }
+
   this.task_drawLabel = task_drawLabel;
   this.task_drawEdge = task_drawEdge;
   this.task_drawNode = task_drawNode;
   this.drawActiveNode = drawActiveNode;
   this.drawHoverNode = drawHoverNode;
+  this.drawOverlay = drawOverlay;
+  this.clearOverlay = clearOverlay;
   this.isOnScreen = isOnScreen;
   this.resize = resize;
 }

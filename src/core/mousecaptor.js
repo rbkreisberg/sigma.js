@@ -208,15 +208,13 @@ function MouseCaptor(dom) {
    * triggered.
    */
   function startDrag() {
-    oldStageX = self.stageX;
-    oldStageY = self.stageY;
-    startX = self.mouseX;
-    startY = self.mouseY;
+    self.dragX0 = startX = self.mouseX;
+    self.dragY0 = startY = self.mouseY;
+    self.layoutDragX0 = self.dragX0 / self.ratio;
+    self.layoutDragY0 = self.dragY0 / self.ratio;
 
-    lastStageX = self.stageX;
-    lastStageX2 = self.stageX;
-    lastStageY = self.stageY;
-    lastStageY2 = self.stageY;
+    self.dragWidth = self.dragHeight = 0;
+    self.layoutDragWidth =  self.dragHeight = 0;
 
     self.dispatch('startdrag');
   };
@@ -225,11 +223,13 @@ function MouseCaptor(dom) {
    * Stops computing the scene position.
    */
   function stopDrag() {
-    if (oldStageX != self.stageX || oldStageY != self.stageY) {
-      startInterpolate(
-        self.stageX + self.p.inertia * (self.stageX - lastStageX2),
-        self.stageY + self.p.inertia * (self.stageY - lastStageY2)
-      );
+    if (self.dragWidth != 0 || self.dragHeight != 0 ) {
+      self.dragWidth = (self.mouseX - self.dragX0);
+      self.dragHeight = self.mouseY - self.dragY0;
+      self.layoutDragWidth = self.dragWidth / self.ratio;
+      self.layoutDragHeight = self.dragHeight / self.ratio;
+
+      self.dispatch('stopdrag');
     }
   };
 
@@ -238,18 +238,13 @@ function MouseCaptor(dom) {
    * dispatches a "drag" event.
    */
   function drag() {
-    var newStageX = self.mouseX - startX + oldStageX;
-    var newStageY = self.mouseY - startY + oldStageY;
 
-    if (newStageX != self.stageX || newStageY != self.stageY) {
-      lastStageX2 = lastStageX;
-      lastStageY2 = lastStageY;
+    self.dragWidth = self.mouseX - self.dragX0;
+    self.dragHeight = self.mouseY - self.dragY0;
 
-      lastStageX = newStageX;
-      lastStageY = newStageY;
-
-      self.stageX = newStageX;
-      self.stageY = newStageY;
+    if (self.dragWidth != 0 || self.dragHeight != 0) {
+      self.layoutDragWidth = self.dragWidth / self.ratio;
+      self.layoutDragHeight = self.dragHeight / self.ratio;
       self.dispatch('drag');
     }
   };
