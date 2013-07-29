@@ -1,4 +1,4 @@
-CONCAT_PATH=build/sigma.concat.js
+CONCAT_PATH=build/sigma.full.js
 MINIFY_PATH=build/sigma.min.js
 TEMP_PATH=build/tmp.js
 CLOSURE=build/compiler.jar
