@@ -72,6 +72,22 @@ function MouseCaptor(dom) {
   this.mouseY = 0;
 
   this.isMouseDown = false;
+  
+  /**
+   * Extract the document X position from a mouse event.
+   * @private
+   * @param  {event} e A mouse event.
+   * @return {number} The local X value of the mouse.
+   */
+  function getDocumentX(e) {
+    if (event.pageX == null) {
+      // IE case
+      var d = (document.documentElement &&
+        document.documentElement.scrollLeft != null) ?
+        document.documentElement : document.body;
+      return event.clientX + d.scrollLeft;
+    } else return event.pageX;
+  }
 
   /**
    * Extract the local X position from a mouse event.
@@ -80,11 +96,31 @@ function MouseCaptor(dom) {
    * @return {number} The local X value of the mouse.
    */
   function getX(e) {
-    return e.offsetX != undefined && e.offsetX ||
-           e.layerX != undefined && e.layerX ||
-           e.clientX != undefined && e.clientX;
+    var docX = getDocumentX();
+    var el = e.target;
+    var offsetLeft = 0;
+    while ( el ) {
+      offsetLeft += el.offsetLeft;
+      el = el.offsetParent;
+    }
+    return docX - offsetLeft;
   };
 
+  /**
+   * Extract the document Y position from a mouse event.
+   * @private
+   * @param  {event} e A mouse event.
+   * @return {number} The local Y value of the mouse.
+   */
+  function getDocumentY(e) {
+    if (event.pageY == null) {
+      // IE case
+      var d = (document.documentElement &&
+        document.documentElement.scrollTop != null) ?
+        document.documentElement : document.body;
+      return event.clientY + d.scrollTop;
+    } else return event.pageY;
+  }
   /**
    * Extract the local Y position from a mouse event.
    * @private
@@ -92,9 +128,14 @@ function MouseCaptor(dom) {
    * @return {number} The local Y value of the mouse.
    */
   function getY(e) {
-    return e.offsetY != undefined && e.offsetY ||
-           e.layerY != undefined && e.layerY ||
-           e.clientY != undefined && e.clientY;
+    var docY = getDocumentY();
+    var el = e.target;
+    var offsetTop = 0;
+    while ( el ) {
+      offsetTop += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return docY - offsetTop;
   };
 
   /**
@@ -396,6 +437,7 @@ function MouseCaptor(dom) {
   dom.addEventListener('DOMMouseScroll', wheelHandler, true);
   dom.addEventListener('mousewheel', wheelHandler, true);
   dom.addEventListener('mousemove', moveHandler, true);
+  dom.addEventListener('mouseout', moveHandler, true);
   dom.addEventListener('mousedown', downHandler, true);
   document.addEventListener('mouseup', upHandler, true);
 
