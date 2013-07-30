@@ -79,6 +79,7 @@ function MouseCaptor(dom) {
    * @param  {event} e A mouse event.
    * @return {number} The local X value of the mouse.
    */
+
   function getDocumentX(e) {
     if (event.pageX == null) {
       // IE case
@@ -89,6 +90,17 @@ function MouseCaptor(dom) {
     } else return event.pageX;
   }
 
+   function crawlOffsetLeft(el) {
+    var offsetLeft = 0;
+    while ( el ) {
+      offsetLeft += el.offsetLeft;
+      el = el.offsetParent;
+    }
+    return offsetLeft;
+  }
+
+  self.offsetLeft = crawlOffsetLeft(dom);
+
   /**
    * Extract the local X position from a mouse event.
    * @private
@@ -96,13 +108,10 @@ function MouseCaptor(dom) {
    * @return {number} The local X value of the mouse.
    */
   function getX(e) {
-    var docX = getDocumentX();
-    var el = e.target;
     var offsetLeft = 0;
-    while ( el ) {
-      offsetLeft += el.offsetLeft;
-      el = el.offsetParent;
-    }
+    var docX = getDocumentX();
+    if (e.target === dom) { offsetLeft = self.offsetLeft; }
+    else { offsetLeft = crawlOffsetLeft(e.target); }
     return docX - offsetLeft;
   };
 
@@ -121,6 +130,18 @@ function MouseCaptor(dom) {
       return event.clientY + d.scrollTop;
     } else return event.pageY;
   }
+
+  function crawlOffsetTop(el) {
+    var offsetTop = 0;
+    while ( el ) {
+      offsetTop += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return offsetTop;
+  }
+
+  self.offsetTop = crawlOffsetTop(dom);
+
   /**
    * Extract the local Y position from a mouse event.
    * @private
@@ -128,13 +149,10 @@ function MouseCaptor(dom) {
    * @return {number} The local Y value of the mouse.
    */
   function getY(e) {
-    var docY = getDocumentY();
-    var el = e.target;
     var offsetTop = 0;
-    while ( el ) {
-      offsetTop += el.offsetTop;
-      el = el.offsetParent;
-    }
+    var docY = getDocumentY();
+    if (e.target === dom) { offsetTop = self.offsetTop; }
+    else offsetTop = crawlOffsetTop(e.target);
     return docY - offsetTop;
   };
 
