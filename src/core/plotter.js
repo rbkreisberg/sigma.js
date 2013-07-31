@@ -99,6 +99,8 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
     //              will be used instead)
     edgeColor: 'source',
     defaultEdgeColor: '#aaa',
+    edgeAlpha: 1.0,
+    edgeCompositeOperation: 'source-over',
     defaultEdgeType: 'line',
     defaultEdgeArrow: 'none',
     // ------
@@ -342,6 +344,9 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
     }
 
     var ctx = edgesCtx;
+    ctx.globalCompositeOperation = self.p.edgeCompositeOperation;
+    ctx.globalAlpha = self.p.edgeAlpha;
+
 
     switch (edge['type'] || self.p.defaultEdgeType) {
       case 'curve':
@@ -758,11 +763,11 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
     var ctx = overlayCtx;
 
     self.clearOverlay();
-    
+
     ctx.lineWidth = 0;
     ctx.fillStyle = self.p.overlayColor;
     ctx.globalAlpha = self.p.overlayAlpha;
-    ctx.fillRect(bbox[0],bbox[1],bbox[2],bbox[3]);
+    ctx.fillRect(bbox[0], bbox[1], bbox[2] - bbox[0], bbox[3] - bbox[1]);
 
   };
 
