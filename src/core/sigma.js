@@ -121,60 +121,65 @@ function Sigma(root, id) {
 
   // Interaction listeners:
   this.mousecaptor.bind('drag', function(e){
-    self.plotter.drawOverlay([e.target.dragX0, e.target.dragY0, e.target.dragWidth, e.target.dragHeight]);
+    self.plotter.drawOverlay([e.target.dragX0, e.target.dragY0, e.target.dragX1, e.target.dragY1]);
   }).bind('stopdrag', function(e) {
-    self.plotter.drawOverlay([e.target.dragX0, e.target.dragY0, e.target.dragWidth, e.target.dragHeight]);
-    self.dispatch('stopdrag', [e.target.layoutDragX0, e.target.layoutDragY0, e.target.layoutDragWidth, e.target.layoutDragHeight]);
+    self.plotter.drawOverlay([e.target.dragX0, e.target.dragY0, e.target.dragX1, e.target.dragY1]);
+    self.dispatch('stopdrag', [
+      self.graph.invertX(e.target.dragX0), 
+      self.graph.invertY(e.target.dragY0), 
+      self.graph.invertX(e.target.dragX1), 
+      self.graph.invertY(e.target.dragY1)
+      ]);
   }).bind('startdrag', function(e) {
     self.plotter.clearOverlay();
   });
   
-  // this.mousecaptor.bind('interpolate', function(e) {
-  //   self.draw(
-  //     self.p.auto ? 2 : self.p.drawNodes,
-  //     self.p.auto ? 0 : self.p.drawEdges,
-  //     self.p.auto ? 2 : self.p.drawLabels,
-  //     true
-  //   );
-  // }).bind('stopinterpolate', function(e) {
-  //   self.draw(
-  //     self.p.auto ? 2 : self.p.drawNodes,
-  //     self.p.auto ? 1 : self.p.drawEdges,
-  //     self.p.auto ? 2 : self.p.drawLabels,
-  //     true
-  //   );
-  // }).bind('mousedown mouseup', function(e) {
-  //   var targeted = self.graph.nodes.filter(function(n) {
-  //     return !!n['hover'];
-  //   }).map(function(n) {
-  //     return n.id;
-  //   });
+  this.mousecaptor.bind('interpolate', function(e) {
+    self.draw(
+      self.p.auto ? 2 : self.p.drawNodes,
+      self.p.auto ? 0 : self.p.drawEdges,
+      self.p.auto ? 2 : self.p.drawLabels,
+      true
+    );
+  }).bind('stopinterpolate', function(e) {
+    self.draw(
+      self.p.auto ? 2 : self.p.drawNodes,
+      self.p.auto ? 1 : self.p.drawEdges,
+      self.p.auto ? 2 : self.p.drawLabels,
+      true
+    );
+  }).bind('mousedown mouseup', function(e) {
+    var targeted = self.graph.nodes.filter(function(n) {
+      return !!n['hover'];
+    }).map(function(n) {
+      return n.id;
+    });
 
-  //   self.dispatch(
-  //     e['type'] == 'mousedown' ?
-  //       'downgraph' :
-  //       'upgraph'
-  //   );
+    self.dispatch(
+      e['type'] == 'mousedown' ?
+        'downgraph' :
+        'upgraph'
+    );
 
-  //   if (targeted.length) {
-  //     self.dispatch(
-  //       e['type'] == 'mousedown' ?
-  //         'downnodes' :
-  //         'upnodes',
-  //       targeted
-  //     );
-  //   }
-  // }).bind('move', function() {
-  //   self.domElements.hover.getContext('2d').clearRect(
-  //     0,
-  //     0,
-  //     self.domElements.hover.width,
-  //     self.domElements.hover.height
-  //   );
+    if (targeted.length) {
+      self.dispatch(
+        e['type'] == 'mousedown' ?
+          'downnodes' :
+          'upnodes',
+        targeted
+      );
+    }
+  }).bind('move', function() {
+    self.domElements.hover.getContext('2d').clearRect(
+      0,
+      0,
+      self.domElements.hover.width,
+      self.domElements.hover.height
+    );
 
-  //   drawHover();
-  //   drawActive();
-  // });
+    drawHover();
+    drawActive();
+  });
 
   sigma.chronos.bind('startgenerators', function() {
     if (sigma.chronos.getGeneratorsIDs().some(function(id) {
