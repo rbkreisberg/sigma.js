@@ -269,11 +269,8 @@ function MouseCaptor(dom) {
   function startDrag() {
     self.dragX0 = startX = self.mouseX;
     self.dragY0 = startY = self.mouseY;
-    self.layoutDragX0 = self.dragX0 / self.ratio;
-    self.layoutDragY0 = self.dragY0 / self.ratio;
 
-    self.dragWidth = self.dragHeight = 0;
-    self.layoutDragWidth =  self.dragHeight = 0;
+    self.dragX1 = self.dragY1 = 0;
 
     self.dispatch('startdrag');
   };
@@ -283,11 +280,10 @@ function MouseCaptor(dom) {
    */
   function stopDrag() {
     if (self.dragWidth != 0 || self.dragHeight != 0 ) {
-      self.dragWidth = (self.mouseX - self.dragX0);
-      self.dragHeight = self.mouseY - self.dragY0;
-      self.layoutDragWidth = self.dragWidth / self.ratio;
-      self.layoutDragHeight = self.dragHeight / self.ratio;
-
+      
+    self.dragX1 = self.mouseX;
+    self.dragY1 = self.mouseY;
+      
       self.dispatch('stopdrag');
     }
   };
@@ -297,13 +293,10 @@ function MouseCaptor(dom) {
    * dispatches a "drag" event.
    */
   function drag() {
+    self.dragX1 = self.mouseX;
+    self.dragY1 = self.mouseY;
 
-    self.dragWidth = self.mouseX - self.dragX0;
-    self.dragHeight = self.mouseY - self.dragY0;
-
-    if (self.dragWidth != 0 || self.dragHeight != 0) {
-      self.layoutDragWidth = self.dragWidth / self.ratio;
-      self.layoutDragHeight = self.dragHeight / self.ratio;
+    if (self.dragY1 - self.dragY0 != 0 || self.dragX1 - self.dragX0 != 0) {
       self.dispatch('drag');
     }
   };
