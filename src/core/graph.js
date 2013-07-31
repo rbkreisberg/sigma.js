@@ -504,13 +504,18 @@ function Graph() {
       d = self.p.minEdgeSize;
     }
 
+    self.scaleX = function(x) { return (x - (xMax + xMin) / 2) * scale + w / 2; };
+    self.invertX = function(displayX) { return ((displayX - w / 2) / scale) + (xMax + xMin) / 2; };
+    self.scaleY = function(y) { return (y - (yMax + yMin) / 2) * scale + h / 2; };
+    self.invertY = function(displayY) { return ((displayY - h / 2) / scale) + (yMax + yMin) / 2; };
+
     // Rescale the nodes:
     parseNodes && self.nodes.forEach(function(node) {
       node['displaySize'] = node['size'] * a + b;
 
       if (!node['fixed']) {
-        node['displayX'] = (node['x'] - (xMax + xMin) / 2) * scale + w / 2;
-        node['displayY'] = (node['y'] - (yMax + yMin) / 2) * scale + h / 2;
+        node['displayX'] = self.scaleX(node['x']);
+        node['displayY'] = self.scaleY(node['y']);
       }
     });
 
