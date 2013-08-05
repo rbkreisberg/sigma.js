@@ -72,34 +72,7 @@ function MouseCaptor(dom) {
   this.mouseY = 0;
 
   this.isMouseDown = false;
-  
-  /**
-   * Extract the document X position from a mouse event.
-   * @private
-   * @param  {event} e A mouse event.
-   * @return {number} The local X value of the mouse.
-   */
-
-  function getDocumentX(e) {
-    if (event.pageX == null) {
-      // IE case
-      var d = (document.documentElement &&
-        document.documentElement.scrollLeft != null) ?
-        document.documentElement : document.body;
-      return event.clientX + d.scrollLeft;
-    } else return event.pageX;
-  }
-
-   function crawlOffsetLeft(el) {
-    var offsetLeft = 0;
-    while ( el ) {
-      offsetLeft += el.offsetLeft;
-      el = el.offsetParent;
-    }
-    return offsetLeft;
-  }
-
-  self.offsetLeft = crawlOffsetLeft(dom);
+  this.isShiftDown = false;
 
   /**
    * Extract the local X position from a mouse event.
@@ -108,39 +81,10 @@ function MouseCaptor(dom) {
    * @return {number} The local X value of the mouse.
    */
   function getX(e) {
-    var offsetLeft = 0;
-    var docX = getDocumentX();
-    if (e.target === dom) { offsetLeft = self.offsetLeft; }
-    else { offsetLeft = crawlOffsetLeft(e.target); }
-    return docX - offsetLeft;
+    return e.offsetX != undefined && e.offsetX ||
+           e.layerX != undefined && e.layerX ||
+           e.clientX != undefined && e.clientX;
   };
-
-  /**
-   * Extract the document Y position from a mouse event.
-   * @private
-   * @param  {event} e A mouse event.
-   * @return {number} The local Y value of the mouse.
-   */
-  function getDocumentY(e) {
-    if (event.pageY == null) {
-      // IE case
-      var d = (document.documentElement &&
-        document.documentElement.scrollTop != null) ?
-        document.documentElement : document.body;
-      return event.clientY + d.scrollTop;
-    } else return event.pageY;
-  }
-
-  function crawlOffsetTop(el) {
-    var offsetTop = 0;
-    while ( el ) {
-      offsetTop += el.offsetTop;
-      el = el.offsetParent;
-    }
-    return offsetTop;
-  }
-
-  self.offsetTop = crawlOffsetTop(dom);
 
   /**
    * Extract the local Y position from a mouse event.
@@ -149,11 +93,9 @@ function MouseCaptor(dom) {
    * @return {number} The local Y value of the mouse.
    */
   function getY(e) {
-    var offsetTop = 0;
-    var docY = getDocumentY();
-    if (e.target === dom) { offsetTop = self.offsetTop; }
-    else offsetTop = crawlOffsetTop(e.target);
-    return docY - offsetTop;
+    return e.offsetY != undefined && e.offsetY ||
+           e.layerY != undefined && e.layerY ||
+           e.clientY != undefined && e.clientY;
   };
 
   /**
@@ -180,8 +122,9 @@ function MouseCaptor(dom) {
 
     self.mouseX = getX(event);
     self.mouseY = getY(event);
-
-    self.isMouseDown && drag(event);
+    
+    self.isMouseDown && self.isShiftDown && brush(event);
+    self.isMouseDown && !self.isShiftDown && drag(event);
     self.dispatch('move');
 
     if (event.preventDefault) {
@@ -201,7 +144,11 @@ function MouseCaptor(dom) {
     if (self.p.mouseEnabled && self.isMouseDown) {
       self.isMouseDown = false;
       self.dispatch('mouseup');
-      stopDrag();
+
+      !self.isShiftDown && stopDrag();
+      self.isShiftDown && stopBrush();
+
+      self.isShiftDown = event.shiftKey;
 
       if (event.preventDefault) {
         event.preventDefault();
@@ -226,7 +173,10 @@ function MouseCaptor(dom) {
 
       self.dispatch('mousedown');
 
-      startDrag();
+      self.isShiftDown = event.shiftKey;
+
+      self.isShiftDown && startBrush();
+      !self.isShiftDown && startDrag();
 
       if (event.preventDefault) {
         event.preventDefault();
@@ -267,23 +217,30 @@ function MouseCaptor(dom) {
    * triggered.
    */
   function startDrag() {
-    self.dragX0 = startX = self.mouseX;
-    self.dragY0 = startY = self.mouseY;
 
-    self.dragX1 = self.dragY1 = 0;
+      oldStageX = self.stageX;
+      oldStageY = self.stageY;
+      startX = self.mouseX;
+      startY = self.mouseY;
 
-    self.dispatch('startdrag');
+      lastStageX = self.stageX;
+      lastStageX2 = self.stageX;
+      lastStageY = self.stageY;
+      lastStageY2 = self.stageY;
+
+      self.dispatch('startdrag');
   };
 
   /**
    * Stops computing the scene position.
    */
   function stopDrag() {
-    if (self.dragWidth != 0 || self.dragHeight != 0 ) {
-      
-    self.dragX1 = self.mouseX;
-    self.dragY1 = self.mouseY;
-      
+   
+    if (oldStageX != self.stageX || oldStageY != self.stageY) {
+      startInterpolate(
+        self.stageX + self.p.inertia * (self.stageX - lastStageX2),
+        self.stageY + self.p.inertia * (self.stageY - lastStageY2)
+      );
       self.dispatch('stopdrag');
     }
   };
@@ -293,11 +250,67 @@ function MouseCaptor(dom) {
    * dispatches a "drag" event.
    */
   function drag() {
-    self.dragX1 = self.mouseX;
-    self.dragY1 = self.mouseY;
 
-    if (self.dragY1 - self.dragY0 != 0 || self.dragX1 - self.dragX0 != 0) {
+    var newStageX = self.mouseX - startX + oldStageX;
+    var newStageY = self.mouseY - startY + oldStageY;
+
+     if (newStageX != self.stageX || newStageY != self.stageY) {
+      lastStageX2 = lastStageX;
+      lastStageY2 = lastStageY;
+
+      lastStageX = newStageX;
+      lastStageY = newStageY;
+
+      self.stageX = newStageX;
+      self.stageY = newStageY;
       self.dispatch('drag');
+    }
+  };
+
+  function adjustedPosition(axis) { 
+    if ( axis === 'x' ) return ( self.mouseX - self.stageX ) / self.ratio ;
+    else return ( self.mouseY - self.stageY ) / self.ratio ;
+  };
+    /**
+   * Will start computing the scene X and Y, until {@link stopDrag} is
+   * triggered.
+   */
+  function startBrush() {
+    self.screenBrushX0 = self.screenBrushX1 = self.mouseX;
+    self.screenBrushY0 = self.screenBrushY1 = self.mouseY;
+
+    self.brushX0 = self.brushX1 = adjustedPosition('x');
+    self.brushY0 = self.brushY1 = adjustedPosition('y');
+    self.dispatch('startbrush');
+  };
+
+  /**
+   * Stops computing the scene position.
+   */
+  function stopBrush() {
+    
+    self.screenBrushX1 = self.mouseX;
+    self.screenBrushY1 = self.mouseY;
+    self.brushX1 = adjustedPosition('x');
+    self.brushY1 = adjustedPosition('y');
+    if (self.screenBrushX1 - self.screenBrushX0 !== 0 || self.screenBrushY1 - self.screenBrushY0 !== 0) {
+      self.dispatch('stopbrush');
+    }
+  };
+
+  /**
+   * Computes the position of the scene, relatively to the mouse position, and
+   * dispatches a "drag" event.
+   */
+  function brush() {
+
+    self.screenBrushX1 = self.mouseX;
+    self.screenBrushY1 = self.mouseY;
+    self.brushX1 = adjustedPosition('x');
+    self.brushY1 = adjustedPosition('y');
+
+    if (self.dragY1 - self.screenBrushY0 != 0 || self.screenBrushX1 - self.screenBrushX0 != 0) {
+      self.dispatch('brush');
     }
   };
 
@@ -448,7 +461,6 @@ function MouseCaptor(dom) {
   dom.addEventListener('DOMMouseScroll', wheelHandler, true);
   dom.addEventListener('mousewheel', wheelHandler, true);
   dom.addEventListener('mousemove', moveHandler, true);
-  dom.addEventListener('mouseout', moveHandler, true);
   dom.addEventListener('mousedown', downHandler, true);
   document.addEventListener('mouseup', upHandler, true);
 

@@ -120,28 +120,28 @@ function Sigma(root, id) {
   );
 
   // Interaction listeners:
-  this.mousecaptor.bind('drag', function(e){
-    self.plotter.drawOverlay([e.target.dragX0, e.target.dragY0, e.target.dragX1, e.target.dragY1]);
-  }).bind('stopdrag', function(e) {
-    self.plotter.drawOverlay([e.target.dragX0, e.target.dragY0, e.target.dragX1, e.target.dragY1]);
-    self.dispatch('stopdrag', [
-      self.graph.invertX(e.target.dragX0), 
-      self.graph.invertY(e.target.dragY0), 
-      self.graph.invertX(e.target.dragX1), 
-      self.graph.invertY(e.target.dragY1)
+  this.mousecaptor.bind('brush ', function(e){
+    self.plotter.drawOverlay([e.target.screenBrushX0, e.target.screenBrushY0, e.target.screenBrushX1, e.target.screenBrushY1]);
+  }).bind('stopbrush', function(e) {
+    self.plotter.drawOverlay([e.target.screenBrushX0, e.target.screenBrushY0, e.target.screenBrushX1, e.target.screenBrushY1]);
+    self.dispatch('stopbrush', [
+      self.graph.invertX(e.target.brushX0), 
+      self.graph.invertY(e.target.brushY0), 
+      self.graph.invertX(e.target.brushX1), 
+      self.graph.invertY(e.target.brushY1)
       ]);
-  }).bind('startdrag', function(e) {
+  }).bind('startbrush', function(e) {
     self.plotter.clearOverlay();
   });
   
-  this.mousecaptor.bind('interpolate', function(e) {
+  this.mousecaptor.bind('drag interpolate', function(e) {
     self.draw(
       self.p.auto ? 2 : self.p.drawNodes,
       self.p.auto ? 0 : self.p.drawEdges,
       self.p.auto ? 2 : self.p.drawLabels,
       true
     );
-  }).bind('stopinterpolate', function(e) {
+  }).bind('stopdrag stopinterpolate', function(e) {
     self.draw(
       self.p.auto ? 2 : self.p.drawNodes,
       self.p.auto ? 1 : self.p.drawEdges,
