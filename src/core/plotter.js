@@ -326,6 +326,10 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
           edge['target']['displayY']
         ],
         color = edge['color'];
+        
+    if (typeof self.p.edgeColor === 'function'){
+      color =self.p.edgeColor(edge);
+    }
 
     if (!color) {
       switch (self.p.edgeColor) {
@@ -341,6 +345,9 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
           color = self.p.defaultEdgeColor;
           break;
       }
+      if (typeof self.p.edgeColor === 'function') {
+        
+      } 
     }
 
     var ctx = edgesCtx;
