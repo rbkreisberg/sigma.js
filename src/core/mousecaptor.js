@@ -193,8 +193,13 @@ function MouseCaptor(dom) {
    * @param  {event} event A 'wheel' mouse event.
    */
   function wheelHandler(event) {
+    var skip,
+        delta = getDelta(event);
+    if ( ( delta > 0 && self.ratio === self.p.maxRatio) || (delta < 0 && self.ratio === self.p.minRatio) ) {
+      skip = true;
+    }
     if (self.p.mouseEnabled) {
-      startInterpolate(
+      !skip && startInterpolate(
         self.mouseX,
         self.mouseY,
         self.ratio * (getDelta(event) > 0 ?

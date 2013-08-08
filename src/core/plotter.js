@@ -107,6 +107,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
     // NODES:
     // ------
     defaultNodeColor: '#aaa',
+    nodeColor : '',
     // HOVER:
     //   Node hover color:
     //   - 'node'
@@ -292,8 +293,15 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
   function drawNode(node) {
     var size = Math.round(node['displaySize'] * 10) / 10;
     var ctx = nodesCtx;
+    var color;
 
-    ctx.fillStyle = node['color'];
+    if (typeof self.p.nodeColor === 'function'){
+      color =self.p.nodeColor(node);
+    } else {
+      color = node['color']
+    }
+
+    ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(node['displayX'],
             node['displayY'],
@@ -326,7 +334,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, hoverCtx, overlayCtx, graph, w, 
           edge['target']['displayY']
         ],
         color = edge['color'];
-        
+
     if (typeof self.p.edgeColor === 'function'){
       color =self.p.edgeColor(edge);
     }

@@ -137,14 +137,14 @@ function Sigma(root, id) {
   this.mousecaptor.bind('drag interpolate', function(e) {
     self.draw(
       self.p.auto ? 2 : self.p.drawNodes,
-      self.p.auto ? 2 : self.p.drawEdges,
+      self.p.auto ? 0 : self.p.drawEdges,
       self.p.auto ? 2 : self.p.drawLabels,
       true
     );
   }).bind('stopdrag stopinterpolate', function(e) {
     self.draw(
       self.p.auto ? 2 : self.p.drawNodes,
-      self.p.auto ? 2 : self.p.drawEdges,
+      self.p.auto ? 1 : self.p.drawEdges,
       self.p.auto ? 2 : self.p.drawLabels,
       true
     );
