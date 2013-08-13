@@ -125,10 +125,10 @@ function Sigma(root, id) {
   }).bind('stopbrush', function(e) {
     self.plotter.drawOverlay([e.target.screenBrushX0, e.target.screenBrushY0, e.target.screenBrushX1, e.target.screenBrushY1]);
     self.dispatch('stopbrush', [
-      self.graph.invertX(e.target.brushX0), 
-      self.graph.invertY(e.target.brushY0), 
-      self.graph.invertX(e.target.brushX1), 
-      self.graph.invertY(e.target.brushY1)
+      self.graph.p.invertX(e.target.brushX0), 
+      self.graph.p.invertY(e.target.brushY0), 
+      self.graph.p.invertX(e.target.brushX1), 
+      self.graph.p.invertY(e.target.brushY1)
       ]);
   }).bind('startbrush', function(e) {
     self.plotter.clearOverlay();

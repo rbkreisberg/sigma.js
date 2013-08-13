@@ -30,6 +30,10 @@ function Graph() {
     //   - 'inside' (default)
     //   - 'outside'
     scalingMode: 'inside',
+    scaleX : undefined,
+    invertX : undefined,
+    scaleY : undefined,
+    invertY : undefined,
     nodesPowRatio: 0.5,
     edgesPowRatio: 0,
     sideMargin: 0,
@@ -504,18 +508,18 @@ function Graph() {
       d = self.p.minEdgeSize;
     }
 
-    self.scaleX = function(x) { return (x - (xMax + xMin) / 2) * scale + w / 2; };
-    self.invertX = function(displayX) { return ((displayX - w / 2) / scale) + (xMax + xMin) / 2; };
-    self.scaleY = function(y) { return (y - (yMax + yMin) / 2) * scale + h / 2; };
-    self.invertY = function(displayY) { return ((displayY - h / 2) / scale) + (yMax + yMin) / 2; };
+    self.p.scaleX = function(x) { return (x - (xMax + xMin) / 2) * scale + w / 2; };
+    self.p.invertX = function(displayX) { return ((displayX - w / 2) / scale) + (xMax + xMin) / 2; };
+    self.p.scaleY = function(y) { return (y - (yMax + yMin) / 2) * scale + h / 2; };
+    self.p.invertY = function(displayY) { return ((displayY - h / 2) / scale) + (yMax + yMin) / 2; };
 
     // Rescale the nodes:
     parseNodes && self.nodes.forEach(function(node) {
       node['displaySize'] = node['size'] * a + b;
 
       if (!node['fixed']) {
-        node['displayX'] = self.scaleX(node['x']);
-        node['displayY'] = self.scaleY(node['y']);
+        node['displayX'] = self.p.scaleX(node['x']);
+        node['displayY'] = self.p.scaleY(node['y']);
       }
     });
 
