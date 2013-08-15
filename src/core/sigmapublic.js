@@ -202,7 +202,7 @@ function SigmaPublic(sigmaInstance) {
   };
 
   // Events
-  s.bind('downnodes upnodes downgraph upgraph stopdrag stopbrush', function(e) {
+  s.bind('downnodes upnodes downgraph upgraph stopdrag stopbrush graphscaled', function(e) {
     self.dispatch(e.type, e.content);
   });
 
