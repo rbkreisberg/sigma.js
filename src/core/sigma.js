@@ -38,6 +38,9 @@ function Sigma(root, id) {
     drawNodes: 2,
     drawEdges: 1,
     drawLabels: 2,
+    drawDragNodes: 2,
+    drawDragEdges: 0,
+    drawDragLabels: 2,
     lastNodes: 2,
     lastEdges: 0,
     lastLabels: 2,
@@ -136,9 +139,9 @@ function Sigma(root, id) {
   
   this.mousecaptor.bind('drag interpolate', function(e) {
     self.draw(
-      self.p.auto ? 2 : self.p.drawNodes,
-      self.p.auto ? 0 : self.p.drawEdges,
-      self.p.auto ? 2 : self.p.drawLabels,
+      self.p.auto ? 2 : self.p.drawDragNodes,
+      self.p.auto ? 0 : self.p.drawDragEdges,
+      self.p.auto ? 2 : self.p.drawDragLabels,
       true
     );
   }).bind('stopdrag stopinterpolate', function(e) {
@@ -186,9 +189,9 @@ function Sigma(root, id) {
       return !!id.match(new RegExp('_ext_' + self.id + '$', ''));
     })) {
       self.draw(
-        self.p.auto ? 2 : self.p.drawNodes,
-        self.p.auto ? 0 : self.p.drawEdges,
-        self.p.auto ? 2 : self.p.drawLabels
+        self.p.auto ? 2 : self.p.drawDragNodes,
+        self.p.auto ? 0 : self.p.drawDragEdges,
+        self.p.auto ? 2 : self.p.drawDragLabels
       );
     }
   }).bind('stopgenerators', function() {
@@ -355,7 +358,7 @@ function Sigma(root, id) {
     var previous = null;
     var start = false;
 
-    if (n) {
+    if (n > 0) {
       if (n > 1) {
         while (self.plotter.task_drawNode()) {}
       }else {
@@ -370,7 +373,7 @@ function Sigma(root, id) {
       }
     }
 
-    if (l) {
+    if (l > 0) {
       if (l > 1) {
         while (self.plotter.task_drawLabel()) {}
       } else {
@@ -393,7 +396,7 @@ function Sigma(root, id) {
       }
     }
 
-    if (e) {
+    if (e > 0) {
       if (e > 1) {
         while (self.plotter.task_drawEdge()) {}
       }else {
