@@ -34,6 +34,7 @@ function Graph() {
     invertX : undefined,
     scaleY : undefined,
     invertY : undefined,
+    frame : undefined,
     nodesPowRatio: 0.5,
     edgesPowRatio: 0,
     sideMargin: 0,
@@ -512,6 +513,7 @@ function Graph() {
     self.p.invertX = function(displayX) { return ((displayX - w / 2) / scale) + (xMax + xMin) / 2; };
     self.p.scaleY = function(y) { return (y - (yMax + yMin) / 2) * scale + h / 2; };
     self.p.invertY = function(displayY) { return ((displayY - h / 2) / scale) + (yMax + yMin) / 2; };
+    self.p.frame = [ self.p.scaleX(xMin), self.p.scaleY(yMin), self.p.scaleX(xMax), self.p.scaleY(yMax) ];
 
     // Rescale the nodes:
     parseNodes && self.nodes.forEach(function(node) {
